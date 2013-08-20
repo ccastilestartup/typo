@@ -41,12 +41,40 @@ Given /^the blog is set up$/ do
                 :profile_id => 1,
                 :name => 'admin',
                 :state => 'active'})
+  User.create!({:login => 'publisher',
+                :password => 'bbbbbbbb',
+                :email => 'shmoe@snow.com',
+                :profile_id => 2,
+                :name => 'publisher',
+                :state => 'active'})
+  User.create!({:login => 'contributor',
+                :password => 'cccccccc',
+                :email => 'bob@snow.com',
+                :profile_id => 3,
+                :name => 'contributor',
+                :state => 'active'})
+  Article.create!({:allow_comments => true,
+                   :allow_pings => true,
+                   :author => "publisher",
+                   :body => "Abracadabra!",
+                   :guid => "1bf3e2ca-ed7c-4562-8a4a-8ce8438822c8",
+                   :id => 2,
+                   :permalink => "hello-world",
+                   :post_type => "read",
+                   :published => true,
+                   :published_at => "2012-06-09 21:51:55 UTC",
+                   :settings => {"password"=>""},
+                   :state => "published",
+                   :text_filter_id => 5,
+                   :title => "magic",
+                   :type => "Article",
+                   :user_id => 2})
 end
 
-And /^I am logged into the admin panel$/ do
+And /^I am logged into the admin panel (not )?as admin$/ do |negate|
   visit '/accounts/login'
-  fill_in 'user_login', :with => 'admin'
-  fill_in 'user_password', :with => 'aaaaaaaa'
+  fill_in 'user_login', :with => (negate) ? 'publisher' : 'admin'
+  fill_in 'user_password', :with => (negate) ? 'bbbbbbbb' : 'aaaaaaaa' 
   click_button 'Login'
   if page.respond_to? :should
     page.should have_content('Login successful')
