@@ -23,7 +23,7 @@ Feature: Merge Articles
     When I fill in "merge_with" with "9"
     And I press "Merge"
     Then I should be on the edit page for article with id 1
-    And I should see "Error, article does not exist"
+    And I should see "Error, other article does not exist"
 
   Scenario: It should not be possible to merge the same article with itself
     Given I am logged into the admin panel as admin
@@ -36,4 +36,4 @@ Feature: Merge Articles
   Scenario: A non-admin cannot merge articles
     Given I am logged into the admin panel not as admin
     And I am on the edit page for article with id 1
-    Then I should not see: "Merge" or "merge_with"
+    Then I should not see: "Merge", "merge_with"
