@@ -11,7 +11,7 @@ Feature: Merge Articles
     And I am on the edit page for article with id 1
     When I fill in "merge_with" with "2"
     And I press "Merge"
-    Then I should be on the show page for the merged article
+    Then I should be on the read page for the merged article
     And the author of the merged article should be one of the authors of the original articles
     And the title of the merged article should be one of the titles of the original articles
     And the text should be the combined text from the two original articles
@@ -35,5 +35,6 @@ Feature: Merge Articles
 
   Scenario: A non-admin cannot merge articles
     Given I am logged into the admin panel not as admin
-    And I am on the edit page for article with id 1
-    Then I should not see: "Merge", "merge_with"
+    And I am on the edit page for article with id 3
+    Then I should not see "Merge"
+    And I should not see "merge_with"
