@@ -113,6 +113,23 @@ class Admin::ContentController < Admin::BaseController
     render :text => nil
   end
 
+  def merge_with
+    if params.has_key?(:merge_with)
+      other_id = params[:merge_with]
+      error_message = nil
+      if other_id == id
+        error_message = "cannot merge an article with itself"
+      elsif not Article.exists?(other_id)
+        error_message = "other article does not exist"
+      end
+      unless error_message.nil?
+        redirect_to :action => 'edit', :id => id
+        flash[:error] = _("Error, #{error_message}")
+        return
+      end
+    end
+  end
+
   protected
 
   def get_fresh_or_existing_draft_for_article
@@ -152,23 +169,6 @@ class Admin::ContentController < Admin::BaseController
       else
         if not @article.parent_id.nil?
           @article = Article.find(@article.parent_id)
-        end
-      end
-    end
-
-   def merge_with
-      if params.has_key?(:merge) and params[:merge].has_key?(:with)
-        other_id = params[:merge][:with]
-        error_message = nil
-        if other_id == id
-          error_message = "cannot merge an article with itself"
-        elsif not Article.exists?(other_id)
-          error_message = "other article does not exist"
-        end
-        unless error_message.nil?
-          redirect_to :action => 'edit', :id => id
-          flash[:error] = _("Error, #{error_message}")
-          return
         end
       end
     end
