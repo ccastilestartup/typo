@@ -416,6 +416,13 @@ class Article < Content
     user.admin? || user_id == user.id
   end
 
+  def merge_with(other_article_id)
+    other_article = Article.find_by_id(other_article_id)
+    merged_body = self.body + "\n\n" + other_article.body
+    merged_article = Article.create(:title => first.title, :author => self.author, :body => merged_body, :user_id => self.user_id, :published => true, :allow_comments => true)
+    merged_article.comments = self.comments + other_article.comments
+  end
+
   protected
 
   def set_published_at
