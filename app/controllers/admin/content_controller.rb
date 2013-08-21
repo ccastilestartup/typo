@@ -141,20 +141,6 @@ class Admin::ContentController < Admin::BaseController
 
   def new_or_edit
     id = params[:id]
-    if params.has_key?(:merge) and params[:merge].has_key?(:with)
-      other_id = params[:merge][:with]
-      error_message = nil
-      if other_id == id
-        error_message = "cannot merge an article with itself"
-      elsif not Article.exists?(other_id)
-        error_message = "other article does not exist"
-      end
-      unless error_message.nil?
-        redirect_to :action => 'edit', :id => id
-        flash[:error] = _("Error, #{error_message}")
-        return
-      end
-    end
     id = params[:article][:id] if params[:article] && params[:article][:id]
     @article = Article.get_or_build_article(id)
     @article.text_filter = current_user.text_filter if current_user.simple_editor?
@@ -166,6 +152,23 @@ class Admin::ContentController < Admin::BaseController
       else
         if not @article.parent_id.nil?
           @article = Article.find(@article.parent_id)
+        end
+      end
+    end
+
+   def merge
+      if params.has_key?(:merge) and params[:merge].has_key?(:with)
+        other_id = params[:merge][:with]
+        error_message = nil
+        if other_id == id
+          error_message = "cannot merge an article with itself"
+        elsif not Article.exists?(other_id)
+          error_message = "other article does not exist"
+        end
+        unless error_message.nil?
+          redirect_to :action => 'edit', :id => id
+          flash[:error] = _("Error, #{error_message}")
+          return
         end
       end
     end
