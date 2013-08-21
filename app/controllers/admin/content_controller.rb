@@ -156,7 +156,7 @@ class Admin::ContentController < Admin::BaseController
       end
     end
 
-   def merge
+   def merge_with
       if params.has_key?(:merge) and params[:merge].has_key?(:with)
         other_id = params[:merge][:with]
         error_message = nil
