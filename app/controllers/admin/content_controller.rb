@@ -141,6 +141,11 @@ class Admin::ContentController < Admin::BaseController
 
   def new_or_edit
     id = params[:id]
+    if params.has_key?(:merge) and params[:merge].has_key?(:with) and params[:merge][:with] == id
+      redirect_to :action => 'edit', :id => id
+      flash[:error] = _("Error, cannot merge an article with itself")
+      return        
+    end
     id = params[:article][:id] if params[:article] && params[:article][:id]
     @article = Article.get_or_build_article(id)
     @article.text_filter = current_user.text_filter if current_user.simple_editor?

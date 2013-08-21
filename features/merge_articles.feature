@@ -21,15 +21,17 @@ Feature: Merge Articles
     Given I am logged into the admin panel as admin
     And I am on the edit page for article with id 1
     When I fill in "merge_with" with "9"
+    And I press "Merge"
     Then I should be on the edit page for article with id 1
-    And the "errorExplanation" field should have the error "article does not exist"
+    And I should see "Error, article does not exist"
 
   Scenario: It should not be possible to merge the same article with itself
     Given I am logged into the admin panel as admin
     And I am on the edit page for article with id 1
     When I fill in "merge_with" with "1"
+    And I press "Merge"
     Then I should be on the edit page for article with id 1
-    And the "errorExplanation" field should have the error "cannot merge an article with itself"
+    And I should see "Error, cannot merge an article with itself"
 
   Scenario: A non-admin cannot merge articles
     Given I am logged into the admin panel not as admin
