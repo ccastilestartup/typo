@@ -418,9 +418,10 @@ class Article < Content
 
   def merge_with(other_article_id)
     other_article = Article.find_by_id(other_article_id)
-    merged_body = self.body + "\n\n" + other_article.body
-    merged_article = Article.create(:title => first.title, :author => self.author, :body => merged_body, :user_id => self.user_id, :published => true, :allow_comments => true)
-    merged_article.comments = self.comments + other_article.comments
+    self.body = self.body + "\n\n" + other_article.body
+    self.comments << other_article.comments
+    self.save!
+    other_article.destroy  
   end
 
   protected
