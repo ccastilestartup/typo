@@ -55,26 +55,50 @@ Given /^the blog is set up$/ do
                 :state => 'active'})
   Article.create!({:allow_comments => true,
                    :allow_pings => true,
-                   :author => "publisher",
-                   :body => "Abracadabra!",
+                   :author => "admin",
+                   :body => "Welcome to Typo. This is your first article. Edit or delete it, then start blogging!",
                    :guid => "1bf3e2ca-ed7c-4562-8a4a-8ce8438822c8",
-                   :id => 2,
-                   :permalink => "hello-world",
+                   :permalink => "welcome-to-typo",
                    :post_type => "read",
                    :published => true,
                    :published_at => "2012-06-09 21:51:55 UTC",
                    :settings => {"password"=>""},
                    :state => "published",
                    :text_filter_id => 5,
-                   :title => "magic",
+                   :title => "Welcome to Typo!",
+                   :type => "Article",
+                   :user_id => 1})
+  Article.create!({:allow_comments => true,
+                   :allow_pings => true,
+                   :author => "publisher",
+                   :body => "words, words, words",
+                   :guid => "1bf3e2ca-ed7d-4562-8a4a-8ce8438822c8",
+                   :permalink => "words",
+                   :post_type => "read",
+                   :published => true,
+                   :published_at => "2012-06-10 21:51:55 UTC",
+                   :settings => {"password"=>""},
+                   :state => "published",
+                   :text_filter_id => 5,
+                   :title => "Words",
                    :type => "Article",
                    :user_id => 2})
 end
 
-And /^I am logged into the admin panel (not )?as admin$/ do |negate|
+When /^there is exactly one article with title "([^"]*)" and author "([^"]*)"$/ do |title,author|
+  articles = Article.find(:all, :conditions => ["author = ? AND title = ?", author, title])
+  assert_equal articles.length, 1
+end
+
+When /^text of article "([^"]*)" by "([^"]*)" is "([^"]*)"$/ do |title,author,text|
+  article = Article.find(:all, :conditions => ["author = ? AND title = ?", author, title])[0]
+  assert_equal article.body, text
+end
+
+And /^I am logged into the admin panel as "([^"]+)"$/ do |username|
   visit '/accounts/login'
-  fill_in 'user_login', :with => (negate) ? 'publisher' : 'admin'
-  fill_in 'user_password', :with => (negate) ? 'bbbbbbbb' : 'aaaaaaaa' 
+  fill_in 'user_login', :with => username
+  fill_in 'user_password', :with => (username == 'admin') ? 'aaaaaaaa' : 'bbbbbbbb'
   click_button 'Login'
   if page.respond_to? :should
     page.should have_content('Login successful')
@@ -132,6 +156,20 @@ When /^(?:|I )fill in the following:$/ do |fields|
   fields.rows_hash.each do |name, value|
     When %{I fill in "#{name}" with "#{value}"}
   end
+end
+
+When /^(?:|I )enter id of article written by "([^"]*)" with title "([^"]*)" into "([^"]*)" field$/ do |author, title,field|
+  article = Article.find(:all, :conditions => ["author = ? AND title = ?", author, title])[0]
+  fill_in(field, :with => article.id)
+end
+
+When /^(?:|I )enter an id which does not match an existing article into "([^"]*)" field$/ do |field|
+  ids = Article.all.map {|article| article.id}
+  new_id = 1
+  while ids.include?(new_id) do
+    new_id += 1
+  end
+  fill_in(field, :with => new_id)
 end
 
 When /^(?:|I )select "([^"]*)" from "([^"]*)"$/ do |value, field|
@@ -286,6 +324,24 @@ Then /^(?:|I )should be on (.+)$/ do |page_name|
   else
     assert_equal path_to(page_name), current_path
   end
+end
+
+Then /^the (\w+) of the article should be one of: (.*)/ do |field_name,quoted_values|
+  elt = page.find(:xpath, "/html/head/title")
+  fields = elt.text.split(" | ")
+  case field_name
+    when 'title'
+      got = fields[0]
+    when 'author'
+      got = fields[1]
+    else
+      got = nil
+  end
+  expected = quoted_values.split('"').reject {|expect| expect =~ /^\s*$/}
+  assert expected.include?(got)
+end
+
+Then /^the body of the article should be: "([^"]*)"/ do |expected|
 end
 
 Then /^(?:|I )should have the following query string:$/ do |expected_pairs|

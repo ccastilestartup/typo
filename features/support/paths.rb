@@ -12,13 +12,18 @@ module NavigationHelpers
   #
   def path_to(page_name)
     case page_name
-
     when /^the home\s?page$/
       '/'
     when /^the new article page$/
       '/admin/content/new'
-    when /^the edit page for article with id (\d+)$/
-      "/admin/content/edit/#{$1}"
+    when /^the edit page for the article written by \"([^"]+)\" with title \"([^"]+)\"$/
+      article = Article.find(:all, :conditions => ["author = ? AND title = ?", $1, $2])[0]
+      "/admin/content/edit/#{article.id}"
+    when /^the preview page for the article written by \"([^"]+)\" with title \"([^"]+)\"$/
+      article = Article.find(:all, :conditions => ["author = ? AND title = ?", $1, $2])[0]
+      timestamp = article.published_at
+      date = sprintf("%d/%02d/%02d", timestamp.year, timestamp.month, timestamp.day)
+      "/#{date}/#{article.permalink}"
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
