@@ -117,12 +117,18 @@ class Admin::ContentController < Admin::BaseController
     if params.has_key?(:merge_with)
       other_id = params[:merge_with]
       error_message = nil
+      id = params[:id]
       if other_id == id
         error_message = "cannot merge an article with itself"
       elsif not Article.exists?(other_id)
         error_message = "other article does not exist"
       end
-      unless error_message.nil?
+      if error_message.nil?
+        @article = Article.find(id)
+        @article.merge_with(other_id)
+        redirect_to @article.permalink_url
+        return 
+      else
         redirect_to :action => 'edit', :id => id
         flash[:error] = _("Error, #{error_message}")
         return
